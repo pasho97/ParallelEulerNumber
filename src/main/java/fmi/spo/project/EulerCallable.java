@@ -9,6 +9,9 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 
 public class EulerCallable implements Callable<BigDecimal> {
+    private static final String THREAD_STARTED_MSG_TEMPLATE = "Thread-%s started.";
+    private static final String THREAD_STOPPED_MSG_TEMPLATE = "Thread-%s stopped.";
+    private static final String THREAD_EXEC_TIME = "Thread-%s execution time was (millis): %d";
     private int start;
     private int end;
     private int precision;
@@ -21,7 +24,9 @@ public class EulerCallable implements Callable<BigDecimal> {
     }
 
     public BigDecimal call() {
-        System.out.println(Thread.currentThread().getName() + "started");
+        String threadName = Thread.currentThread().getName();
+        long startMillis = System.currentTimeMillis();
+        System.out.println(String.format(THREAD_STARTED_MSG_TEMPLATE, threadName));
         BigDecimal numerator = getNumerator(start);
         BigDecimal denominator = getDenominator(start);
         BigDecimal partialSum = numerator.divide(denominator, precision, RoundingMode.HALF_UP);
@@ -30,7 +35,9 @@ public class EulerCallable implements Callable<BigDecimal> {
             denominator = denominator.multiply(BigDecimal.valueOf(2 * i * (2 * i + 1)));
             partialSum = partialSum.add(numerator.divide(denominator, precision, RoundingMode.HALF_UP));
         }
-
+        long endMillis = System.currentTimeMillis();
+        System.out.println(String.format(THREAD_EXEC_TIME, threadName,endMillis-startMillis));
+        System.out.println(String.format(THREAD_STOPPED_MSG_TEMPLATE, threadName));
         return partialSum;
     }
 
